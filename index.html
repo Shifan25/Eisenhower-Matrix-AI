@@ -29,7 +29,7 @@
   </header>
 
   <main>
-    <!-- Focus profile (saved in Firestore so it syncs) -->
+    <!-- Focus profile -->
     <section id="profile-panel" class="panel">
       <h2>My Focus Profile</h2>
       <p class="small">Describe what <strong>Important</strong> means to you (for your own reference).</p>
@@ -76,6 +76,20 @@
         </div>
       </form>
     </section>
+
+    <!-- Category filter -->
+    <div class="panel" id="filter-panel" style="margin-bottom:1rem;">
+      <label class="small">Filter Category:
+        <select id="category-filter" class="secondary small" style="margin-left:.5rem;">
+          <option value="">All Categories</option>
+          <option>General</option>
+          <option>Work</option>
+          <option>Family</option>
+          <option>Health</option>
+          <option>Finance</option>
+        </select>
+      </label>
+    </div>
 
     <!-- Quadrants -->
     <section id="matrix" aria-label="Eisenhower quadrants">
