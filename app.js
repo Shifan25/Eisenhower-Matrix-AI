@@ -1,18 +1,11 @@
-// app.js - main UI logic (AI Eisenhower)
 import { watchTasks, addTaskRemote, updateTaskRemote, deleteTaskRemote, auth, loadProfile, saveProfile } from "./firebase.js";
 import { watchAuth, login, logout } from "./auth.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { firebaseConfig } from "./firebase-config.js";
-
-const appFirebase = initializeApp(firebaseConfig); // functions needs same app
-const functions = getFunctions(appFirebase);
 
 const THEME_KEY = 'eisenhower_theme';
 let tasks = [];
 let profile = { importance:'' };
 
-// ---- THEME ----
+// Theme
 function applyTheme(){
   const pref = localStorage.getItem(THEME_KEY);
   if(pref === 'dark') document.documentElement.classList.add('dark');
@@ -24,7 +17,7 @@ document.getElementById('theme-toggle').addEventListener('click', ()=>{
   localStorage.setItem(THEME_KEY, isDark? 'dark':'light');
 });
 
-// ---- AUTH ----
+// Auth
 watchAuth(async user=>{
   if(!user){
     document.getElementById('user-info').textContent = '';
@@ -45,7 +38,7 @@ document.getElementById('login-btn').onclick = ()=>login(
 );
 document.getElementById('logout-btn').onclick = ()=>logout();
 
-// ---- PROFILE ----
+// Profile save
 document.getElementById('save-profile').onclick = async ()=>{
   if(!auth.currentUser){ alert('Login first'); return; }
   profile.importance = document.getElementById('importanceText').value;
@@ -53,7 +46,7 @@ document.getElementById('save-profile').onclick = async ()=>{
   alert('Profile saved');
 };
 
-// ---- TASK LOGIC ----
+// Helpers
 function getQuadrant(task){
   if(task.urgent && task.important) return 'q1';
   if(!task.urgent && task.important) return 'q2';
@@ -62,10 +55,10 @@ function getQuadrant(task){
 }
 const searchInput = document.getElementById('search');
 searchInput.addEventListener('input', render);
+function span(t){ const s=document.createElement('span'); s.textContent=t; return s; }
+function button(t,c,h){ const b=document.createElement('button'); b.textContent=t; b.className=c; b.type='button'; b.onclick=h; return b; }
 
-function span(text){ const s=document.createElement('span'); s.textContent=text; return s; }
-function button(text,cls,handler){ const b=document.createElement('button'); b.textContent=text; b.className=cls; b.type='button'; b.onclick=handler; return b; }
-
+// Render
 function render(){
   const filter = searchInput.value.toLowerCase();
   const counts={q1:{total:0,done:0},q2:{total:0,done:0},q3:{total:0,done:0},q4:{total:0,done:0}};
@@ -133,6 +126,7 @@ async function toggleDone(task){ task.done=!task.done; await updateTaskRemote(ta
 async function archiveTask(task){ task.archived=true; await updateTaskRemote(task); }
 async function removeTask(id){ if(confirm('Delete this task?')) await deleteTaskRemote(id); }
 
+// Form
 function resetForm(){
   document.getElementById('task-form').reset();
   document.getElementById('task-id').value='';
@@ -173,7 +167,7 @@ document.getElementById('task-form').addEventListener('submit',async e=>{
   resetForm();
 });
 
-// Drag & Drop quadrant move
+// Drag & drop
 document.querySelectorAll('.quadrant').forEach(q=>{
   q.addEventListener('dragover',e=>{ e.preventDefault(); q.classList.add('drag-over'); });
   q.addEventListener('dragleave',()=>q.classList.remove('drag-over'));
@@ -202,7 +196,7 @@ document.getElementById('voice-btn').onclick = ()=>{
   };
 };
 
-// Calendar ICS
+// Calendar export
 function downloadICS(task){
   const dt = task.dueDate? task.dueDate.replace(/-/g,'') : new Date().toISOString().split('T')[0].replace(/-/g,'');
   const ics=`BEGIN:VCALENDAR
@@ -218,25 +212,13 @@ END:VCALENDAR`;
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${task.title}.ics`; a.click();
 }
 
-// Clear local settings (does not delete tasks)
+// Local settings reset
 document.getElementById('clear-all').addEventListener('click',()=>{
-  if(confirm('This will clear theme preference + profile text locally. Tasks remain in cloud. Continue?')){
+  if(confirm('Clear theme + profile text locally? (Cloud tasks stay)')){
     localStorage.removeItem(THEME_KEY);
     document.getElementById('importanceText').value='';
     alert('Local settings cleared.');
   }
-});
-
-// AI Prioritization
-document.getElementById('ai-btn').addEventListener('click', async ()=>{
-  if(!auth.currentUser){ alert('Login first'); return; }
-  const fn=httpsCallable(functions,'prioritizeTasks');
-  try{
-    document.getElementById('ai-btn').disabled=true;
-    await fn();
-    alert('AI updated tasks');
-  }catch(err){ alert('AI error: '+err.message); }
-  finally{ document.getElementById('ai-btn').disabled=false; }
 });
 
 render();
