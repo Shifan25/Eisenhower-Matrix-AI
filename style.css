@@ -92,8 +92,13 @@ main { width:100%; max-width:1200px; margin:0 auto; padding:1rem; flex:1; }
 .quadrant[data-quadrant=q3] { background:linear-gradient(var(--q3),var(--panel)); }
 .quadrant[data-quadrant=q4] { background:linear-gradient(var(--q4),var(--panel)); }
 .q-desc { margin:.2rem 0 .5rem; font-size:.65rem; color:var(--muted); }
-.count { font-size:.55rem; background:#334155; color:#fff; padding:.15rem .4rem; border-radius:var(--radius); }
+.count {
+  font-size:.55rem; background:#334155; color:#fff;
+  padding:.15rem .4rem; border-radius:var(--radius);
+}
 .dark .count { background:#0f172a; }
+/* Hide empty count badges (prevents black dots) */
+.count:empty { display:none; }
 
 .task-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.5rem; }
 .task-item { background:#fff; border-radius:var(--radius); padding:.6rem .75rem; display:flex; flex-direction:column; gap:.35rem; border:1px solid #e2e8f0; }
@@ -108,16 +113,55 @@ main { width:100%; max-width:1200px; margin:0 auto; padding:1rem; flex:1; }
 .actions button.edit { background:#6366f1; }
 .actions button.cal { background:#2563eb; }
 
-#fab {
-  position:fixed; bottom:1rem; right:1rem;
-  width:54px; height:54px; border-radius:50%;
-  font-size:1.75rem; display:flex; align-items:center; justify-content:center;
-  background:var(--accent); color:#fff; box-shadow:0 6px 16px rgba(0,0,0,.25);
-}
+/* Old floating button hidden */
+#fab { display:none; }
+
 footer { text-align:center; padding:.5rem 1rem; font-size:.65rem; color:var(--muted); }
 
 @media (max-width:680px){
   .app-bar { flex-direction:column; align-items:stretch; }
   #auth-bar input { width:110px; }
   #search { flex:1; min-width:0; }
+}
+
+/* Bottom navigation bar */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: var(--panel);
+  border-top: 1px solid #cbd5e1;
+  padding: .35rem env(safe-area-inset-right) .5rem env(safe-area-inset-left);
+  z-index: 200;
+}
+.dark .bottom-nav { border-top-color:#475569; }
+
+.bottom-nav .tab-btn {
+  flex:1;
+  background:transparent;
+  color: var(--text);
+  padding:.5rem 0;
+  font-size:.7rem;
+  font-weight:600;
+  border:none;
+  border-radius:0;
+}
+.bottom-nav .tab-btn.active {
+  color: var(--accent);
+}
+.bottom-nav .add-btn {
+  flex:0 0 auto;
+  width:50px; height:50px;
+  border-radius:50%;
+  background: var(--accent);
+  color:#fff;
+  font-size:1.5rem;
+  line-height:1;
+  margin:-1.5rem 0 0 0;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+@media (min-width:900px){
+  .bottom-nav { display:none; } /* Hide on large desktop if you prefer */
 }
