@@ -41,3 +41,9 @@ export async function loadProfile(uid){
 export async function saveProfile(uid,data){
   await setDoc(doc(db,'profiles',uid), data, { merge:true });
 }
+import { enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+enableIndexedDbPersistence(db).catch(err => {
+  console.warn("Persistence error", err.code);
+});
+
