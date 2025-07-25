@@ -1,17 +1,13 @@
-Review the code of app.js
 // app.js
 import {
   watchTasks, watchArchived, addTaskRemote, updateTaskRemote, deleteTaskRemote,
-  auth, loadProfile, saveProfile
-} from "./firebase.js";
-import {
-  watchTasks, addTaskRemote, updateTaskRemote, deleteTaskRemote,
   auth, loadProfile, saveProfile
 } from "./firebase.js";
 import { watchAuth, login, logout } from "./auth.js";
 
 const THEME_KEY = 'eisenhower_theme';
 let tasks = [];
+let archived = [];
 let profile = { importance:'' };
 
 /* ---------- THEME ---------- */
@@ -32,7 +28,7 @@ watchAuth(async user=>{
     document.getElementById('user-info').textContent = '';
     document.getElementById('logout-btn').style.display='none';
     document.getElementById('login-btn').style.display='inline-block';
-    tasks=[]; render(); return;
+    tasks=[]; archived=[]; render(); return;
   }
   document.getElementById('user-info').textContent = user.email;
   document.getElementById('logout-btn').style.display='inline-block';
@@ -40,7 +36,10 @@ watchAuth(async user=>{
 
   profile = await loadProfile(user.uid);
   document.getElementById('importanceText').value = profile.importance || '';
-  watchTasks(remote=>{ tasks = remote; render(); });
+
+  // Live listeners
+  watchTasks(remote => { tasks = remote; render(); });
+  watchArchived(remote => { archived = remote; render(); });
 });
 document.getElementById('login-btn').onclick = ()=>login(
   (document.getElementById('email').value||'').trim(),
@@ -75,7 +74,10 @@ function button(t,c,h){ const b=document.createElement('button'); b.textContent=
 function render(){
   const filter = searchInput.value.toLowerCase();
   const counts={q1:{total:0,done:0},q2:{total:0,done:0},q3:{total:0,done:0},q4:{total:0,done:0}};
-  ['q1','q2','q3','q4','completed-list'].forEach(id=>document.getElementById(id).innerHTML='');
+  ['q1','q2','q3','q4','completed-list','archived-list'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.innerHTML='';
+  });
   const today = new Date().toISOString().split('T')[0];
   const categoryCounts = {};
 
@@ -145,6 +147,26 @@ function render(){
   });
   document.getElementById('categories').innerHTML = Object.entries(categoryCounts)
     .map(([c,v])=>`<div>${c}: ${v.done}/${v.total}</div>`).join('');
+
+  // Archived list
+  const archivedList = document.getElementById('archived-list');
+  if(archivedList){
+    archived.forEach(task=>{
+      const li=document.createElement('li');
+      li.className='task-item';
+      li.innerHTML = `<strong>${task.title}</strong>`;
+      const actions=document.createElement('div'); actions.className='actions';
+      actions.appendChild(button('Unarchive','edit',()=>{
+        task.archived=false; updateTaskRemote(task);
+      }));
+      actions.appendChild(button('Delete','delete',()=>removeTask(task.id)));
+      li.appendChild(actions);
+      archivedList.appendChild(li);
+    });
+    // Hide panel if empty
+    const panel = document.getElementById('archived-panel');
+    if(panel) panel.style.display = archived.length ? 'block' : 'none';
+  }
 }
 
 async function toggleDone(task){ task.done=!task.done; await updateTaskRemote(task); }
