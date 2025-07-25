@@ -133,13 +133,24 @@
       <h2>Completed</h2>
       <ul id="completed-list" class="task-list small"></ul>
     </section>
-  </main>
 
-  <button id="fab" aria-label="Add task">＋</button>
+    <!-- Archived -->
+    <section id="archived-panel" class="panel">
+      <h2>Archived</h2>
+      <ul id="archived-list" class="task-list small"></ul>
+    </section>
+  </main>
 
   <footer>
     <p>Sync via Firebase. Offline‑ready PWA. <button id="clear-all" class="danger small">Reset Local Settings</button></p>
   </footer>
+
+  <!-- Bottom navigation bar -->
+  <nav class="bottom-nav" aria-label="Main">
+    <button class="tab-btn active" data-target="matrix">Matrix</button>
+    <button class="tab-btn add-btn" id="nav-add" aria-label="Add Task">＋</button>
+    <button class="tab-btn" data-target="profile-panel">Profile</button>
+  </nav>
 
   <script type="module" src="app.js"></script>
   <script>
