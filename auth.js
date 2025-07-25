@@ -1,22 +1,44 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { firebaseConfig } from "./firebase-config.js";
+// auth.js
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+import { auth } from "./firebase.js";   // reuse the app/auth created in firebase.js
 
 export function watchAuth(callback){
   onAuthStateChanged(auth, user => callback(user));
 }
-export async function login(email, pass){
+
+export async function login(email, password){
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
+    if(!email || !password){
+      alert("Enter email and password.");
+      return;
+    }
+    if(password.length < 6){
+      alert("Password must be at least 6 characters.");
+      return;
+    }
+    await signInWithEmailAndPassword(auth, email, password);
   } catch(e){
+    console.error("Login error:", e.code, e.message);
     if(e.code === 'auth/user-not-found'){
-      await createUserWithEmailAndPassword(auth, email, pass);
+      // create account automatically
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } catch(e2){
+        console.error("Signup error:", e2.code, e2.message);
+        alert(e2.code + ": " + e2.message);
+      }
     } else {
-      alert(e.message);
+      alert(e.code + ": " + e.message);
     }
   }
 }
-export function logout(){ signOut(auth); }
+
+export function logout(){
+  return signOut(auth);
+}
