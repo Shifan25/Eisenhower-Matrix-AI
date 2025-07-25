@@ -1,0 +1,1 @@
+export const firebaseConfig={apiKey:'PASTE',authDomain:'',projectId:'',storageBucket:'',messagingSenderId:'',appId:''};
