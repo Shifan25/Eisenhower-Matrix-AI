@@ -53,3 +53,14 @@ export async function loadProfile(uid){
 export async function saveProfile(uid, data){
   await setDoc(doc(db,'profiles', uid), data, { merge:true });
 }
+export function watchArchived(callback){
+  if(!auth.currentUser){ callback([]); return; }
+  const q = query(
+    collection(db,'tasks'),
+    where('user','==',auth.currentUser.uid),
+    where('archived','==',true)
+  );
+  return onSnapshot(q, snap=>{
+    callback(snap.docs.map(d=>({ id:d.id, ...d.data() })));
+  });
+}
