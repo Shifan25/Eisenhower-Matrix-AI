@@ -165,3 +165,8 @@ footer { text-align:center; padding:.5rem 1rem; font-size:.65rem; color:var(--mu
 @media (min-width:900px){
   .bottom-nav { display:none; } /* Hide on large desktop if you prefer */
 }
+
+/* Hide Archived panel when empty */
+#archived-panel:has(#archived-list:empty) {
+  display: none;
+}
