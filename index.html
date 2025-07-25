@@ -1,1 +1,139 @@
-...AI app index placeholder...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Eisenhower Matrix</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0f172a"/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-bar">
+    <div class="left">
+      <h1>Eisenhower Matrix</h1>
+    </div>
+    <div class="right tools">
+      <div id="auth-bar">
+        <input id="email" type="email" placeholder="you@example.com">
+        <input id="password" type="password" placeholder="Password">
+        <button id="login-btn" class="secondary small">Login / Sign up</button>
+        <button id="logout-btn" class="secondary small" style="display:none;">Logout</button>
+        <span id="user-info" class="small muted"></span>
+      </div>
+      <input id="search" type="search" placeholder="Search tasks..." aria-label="Search tasks">
+      <button id="theme-toggle" title="Toggle dark mode">🌓</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Focus profile (saved in Firestore so it syncs) -->
+    <section id="profile-panel" class="panel">
+      <h2>My Focus Profile</h2>
+      <p class="small">Describe what <strong>Important</strong> means to you (for your own reference).</p>
+      <textarea id="importanceText" rows="2" placeholder="e.g. Activities that improve my health, career skills, or relationships."></textarea>
+      <button id="save-profile" class="secondary small">Save Profile</button>
+    </section>
+
+    <!-- Task form -->
+    <section id="task-form-section" class="panel">
+      <form id="task-form" autocomplete="off">
+        <input type="hidden" id="task-id" />
+        <div class="grid">
+          <div>
+            <label>Title* <input type="text" id="title" required maxlength="80"></label>
+          </div>
+          <div>
+            <label>Due Date <input type="date" id="due-date"></label>
+          </div>
+          <div>
+            <label>Category
+              <select id="category">
+                <option>General</option>
+                <option>Work</option>
+                <option>Family</option>
+                <option>Health</option>
+                <option>Finance</option>
+              </select>
+            </label>
+          </div>
+          <div class="full">
+            <label>Description
+              <textarea id="description" rows="2" placeholder="Optional details"></textarea>
+            </label>
+          </div>
+          <div class="toggles">
+            <label><input type="checkbox" id="important"> Important</label>
+            <label><input type="checkbox" id="urgent"> Urgent</label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" id="save-btn">Save Task</button>
+          <button type="button" id="voice-btn" class="secondary">🎤 Voice to Tasks</button>
+          <button type="button" id="reset-btn" class="secondary">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Quadrants -->
+    <section id="matrix" aria-label="Eisenhower quadrants">
+      <div class="quadrant" data-quadrant="q1" tabindex="0">
+        <div class="q-head">
+          <h2>Q1: Do <span id="count-q1" class="count"></span></h2>
+          <p class="q-desc">Tasks with clear deadlines and serious consequences if delayed.</p>
+        </div>
+        <ul class="task-list" id="q1"></ul>
+      </div>
+      <div class="quadrant" data-quadrant="q2" tabindex="0">
+        <div class="q-head">
+          <h2>Q2: Schedule <span id="count-q2" class="count"></span></h2>
+          <p class="q-desc">Important long‑term tasks. Plan time to work on them.</p>
+        </div>
+        <ul class="task-list" id="q2"></ul>
+      </div>
+      <div class="quadrant" data-quadrant="q3" tabindex="0">
+        <div class="q-head">
+          <h2>Q3: Delegate <span id="count-q3" class="count"></span></h2>
+          <p class="q-desc">Urgent interruptions that someone else can handle.</p>
+        </div>
+        <ul class="task-list" id="q3"></ul>
+      </div>
+      <div class="quadrant" data-quadrant="q4" tabindex="0">
+        <div class="q-head">
+          <h2>Q4: Delete <span id="count-q4" class="count"></span></h2>
+          <p class="q-desc">Low‑value distractions. Reduce or remove them.</p>
+        </div>
+        <ul class="task-list" id="q4"></ul>
+      </div>
+    </section>
+
+    <!-- Category progress + Completed -->
+    <section id="categories-panel" class="panel">
+      <h2>Categories Progress</h2>
+      <div id="categories"></div>
+    </section>
+
+    <section id="completed-panel" class="panel">
+      <h2>Completed</h2>
+      <ul id="completed-list" class="task-list small"></ul>
+    </section>
+  </main>
+
+  <button id="fab" aria-label="Add task">＋</button>
+
+  <footer>
+    <p>Sync via Firebase. Offline‑ready PWA. <button id="clear-all" class="danger small">Reset Local Settings</button></p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch(console.error);
+      });
+    }
+  </script>
+</body>
+</html>
