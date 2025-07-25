@@ -1,4 +1,9 @@
+Review the code of app.js
 // app.js
+import {
+  watchTasks, watchArchived, addTaskRemote, updateTaskRemote, deleteTaskRemote,
+  auth, loadProfile, saveProfile
+} from "./firebase.js";
 import {
   watchTasks, addTaskRemote, updateTaskRemote, deleteTaskRemote,
   auth, loadProfile, saveProfile
